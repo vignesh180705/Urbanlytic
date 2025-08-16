@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Urbanlytic - Incident Reports</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .incident {
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            .incident small { color: gray; }
+        </style>
+        
+
+    </head>
+    <body>
+        <h2>Submit Incident Report</h2>
+        <form id="incidentForm">
+            <input type="text" name="user_id" placeholder="User ID" required><br><br>
+            <textarea name="description" placeholder="Description" required></textarea><br><br>
+            <input type="text" name="location" placeholder="Location" required><br><br>
+            <button type="submit">Submit</button>
+        </form>
+
+        <h2>Incoming Messages</h2>
+        <div id="messages"></div>
+
+    <script>
+        function renderIncident(incident) {
+            const div = document.createElement("div");
+            div.className = "incident";
+            div.innerHTML = `
+                <strong>User:</strong> ${incident.user_id || ""}<br>
+                <strong>Description:</strong> ${incident.description || ""}<br>
+                <strong>Location:</strong> ${incident.location || ""}<br>
+                <small>${incident.timestamp || ""}</small>
+            `;
+            return div;
+        }
+
+        // Load history
+        async function loadHistory() {
+            const res = await fetch("/history");
+            const data = await res.json();
+            console.log("History:", data);  // debug
+            const messagesList = document.getElementById("messages");
+            data.incidents.reverse().forEach(incident => {
+                messagesList.appendChild(renderIncident(incident));
+            });
+        }
+        loadHistory();
+
+        // WebSocket live updates
+        const ws = new WebSocket("ws://" + window.location.host + "/ws");
+        ws.onmessage = (event) => {
+            console.log("WS message:", event.data); // debug
+            let incident;
+            try {
+                incident = JSON.parse(event.data);
+            } catch (e) {
+                console.error("Could not parse WS data", e);
+                return;
+            }
+            document.getElementById("messages").prepend(renderIncident(incident));
+        };
+    </script>
+    <script>
+            const form = document.getElementById("incidentForm");
+
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();  // stop default form reload
+
+                const formData = new FormData(form);
+                const payload = {
+                    user_id: formData.get("user_id"),
+                    description: formData.get("description"),
+                    location: formData.get("location"),
+                };
+
+                try {
+                    const res = await fetch("/submit", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                    });
+
+                    const result = await res.json();
+                    console.log("Submit response:", result);
+
+                    if (result.status === "success") {
+                        form.reset(); // clear form
+                    } else {
+                        alert("Failed to submit: " + result.message);
+                    }
+                } catch (err) {
+                    console.error("Submit error:", err);
+                }
+            });
+        </script>
+    </body>
+</html>
