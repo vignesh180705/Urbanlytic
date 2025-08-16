@@ -10,7 +10,7 @@ from datetime import datetime
 from google.cloud import firestore
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 import google.generativeai as genai
-
+import re
 
 load_dotenv()
 
@@ -41,21 +41,58 @@ class IncidentReport(BaseModel):
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+def classify_incident(description: str) -> dict:
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    prompt = f"""
+    You are an incident classification agent. 
+    Classify the following report into one of these categories:
+    [Accident, Fire, Theft, Medical, Traffic, Other]
+
+    Also provide a short summary in plain English.
+
+    Report: "{description}"
+
+    Respond ONLY in JSON with keys: category, summary.
+    Example:
+    {{
+      "category": "Traffic",
+      "summary": "Minor traffic jam near Central Avenue"
+    }}
+    """
+    response = model.generate_content(prompt)
+    raw_text = response.text.strip()
+
+    cleaned = re.sub(r"^```(?:json)?|```$", "", raw_text, flags=re.MULTILINE).strip()
+
+    try:
+        result = json.loads(cleaned)
+    except Exception:
+        # fallback
+        result = {
+            "category": "Other",
+            "summary": description[:100]
+        }
+    return result
+
+
 @app.post("/submit")
 async def submit_report(report: IncidentReport):
     try:
         incident = report.dict()
 
+        # 👉 Call AI classifier
+        ai_result = classify_incident(incident["description"])
+
         # Prepare two versions of the payload
-        # 👉 For Pub/Sub and WebSocket: use fixed UTC timestamp
         incident_for_pubsub = {
             **incident,
+            **ai_result,  # add category + summary
             "timestamp": datetime.utcnow().isoformat()
         }
 
-        # 👉 For Firestore: use server-generated timestamp
         incident_for_firestore = {
             **incident,
+            **ai_result,  # add category + summary
             "timestamp": firestore.SERVER_TIMESTAMP
         }
 
@@ -64,9 +101,9 @@ async def submit_report(report: IncidentReport):
             topic_path,
             json.dumps(incident_for_pubsub).encode("utf-8")
         )
-        message_id = future.result()  # wait for publish confirmation (optional)
+        message_id = future.result()
 
-        # Save to Firestore (returns a DocumentReference)
+        # Save to Firestore
         doc_ref = db.collection("incidents").document()
         doc_ref.set(incident_for_firestore)
 
@@ -74,11 +111,12 @@ async def submit_report(report: IncidentReport):
             "status": "success",
             "message_id": message_id,
             "incident_id": doc_ref.id,
-            "incident": incident_for_pubsub  # return client-friendly version
+            "incident": incident_for_pubsub
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/history")
 async def get_history():
@@ -121,20 +159,5 @@ def start_subscriber():
         streaming_pull_future.result()
     except Exception as e:
         streaming_pull_future.cancel()
-
-def classify_incident(description: str) -> str:
-    model = genai.GenerativeModel("gemini-1.5-flash")  # or gemini-pro
-    prompt = f"""
-    You are an incident classification agent. 
-    Classify the following report into one of these categories:
-    [Accident, Fire, Theft, Medical, Traffic, Other]
-
-    Report: "{description}"
-
-    Return ONLY the category.
-    """
-    response = model.generate_content(prompt)
-    return response.text.strip()
-
 
 threading.Thread(target=start_subscriber, daemon=True).start()
