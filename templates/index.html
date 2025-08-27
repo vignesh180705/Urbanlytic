@@ -44,26 +44,23 @@
         return div;
     }
 
-    // Fetch last 10 incidents on load
     async function loadHistory() {
         const res = await fetch("/history");
         const data = await res.json();
         const messagesDiv = document.getElementById("messages");
-        messagesDiv.innerHTML = ""; // clear old
+        messagesDiv.innerHTML = "";
         data.incidents.reverse().forEach(incident => {
             messagesDiv.appendChild(renderIncident(incident));
         });
     }
     loadHistory();
 
-    // WebSocket for live updates
     const ws = new WebSocket("ws://" + window.location.host + "/ws");
     ws.onmessage = (event) => {
         const incident = JSON.parse(event.data);
         document.getElementById("messages").prepend(renderIncident(incident));
     };
 
-    // Submit form
     document.getElementById("incidentForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);

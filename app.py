@@ -28,7 +28,7 @@ app = FastAPI(title="Urbanlytic Ingestion + Dashboard")
 templates = Jinja2Templates(directory="templates")
 
 active_websockets = []
-loop = asyncio.get_event_loop()  # capture FastAPI event loop
+loop = asyncio.get_event_loop()
 
 db = firestore.Client()
 
@@ -67,7 +67,6 @@ def classify_incident(description: str) -> dict:
     try:
         result = json.loads(cleaned)
     except Exception:
-        # fallback
         result = {
             "category": "Other",
             "summary": description[:100]
@@ -79,39 +78,35 @@ def classify_incident(description: str) -> dict:
 async def submit_report(report: IncidentReport):
     try:
         incident = report.dict()
-
-        # 👉 Call AI classifier
         ai_result = classify_incident(incident["description"])
-
-        # Prepare two versions of the payload
-        incident_for_pubsub = {
+        pubsub_dict = {
             **incident,
-            **ai_result,  # add category + summary
+            **ai_result,
             "timestamp": datetime.utcnow().isoformat()
         }
 
-        incident_for_firestore = {
+        firestore_dict = {
             **incident,
-            **ai_result,  # add category + summary
+            **ai_result,
             "timestamp": firestore.SERVER_TIMESTAMP
         }
 
         # Publish to Pub/Sub
         future = publisher.publish(
             topic_path,
-            json.dumps(incident_for_pubsub).encode("utf-8")
+            json.dumps(pubsub_dict).encode("utf-8")
         )
         message_id = future.result()
 
         # Save to Firestore
         doc_ref = db.collection("incidents").document()
-        doc_ref.set(incident_for_firestore)
+        doc_ref.set(firestore_dict)
 
         return {
             "status": "success",
             "message_id": message_id,
             "incident_id": doc_ref.id,
-            "incident": incident_for_pubsub
+            "incident": pubsub_dict
         }
 
     except Exception as e:
@@ -121,7 +116,6 @@ async def submit_report(report: IncidentReport):
 @app.get("/history")
 async def get_history():
     try:
-        # Query last 10 incidents (sorted by timestamp desc)
         docs = db.collection("incidents").order_by("timestamp", direction=firestore.Query.DESCENDING).limit(10).stream()
         history = [doc.to_dict() for doc in docs]
         return {"incidents": history}
@@ -134,16 +128,14 @@ async def websocket_endpoint(ws: WebSocket):
     active_websockets.append(ws)
     try:
         while True:
-            await ws.receive_text()  # keep alive
+            await ws.receive_text()  
     except:
         active_websockets.remove(ws)
 
-# Pub/Sub callback
 def callback(message):
     data = message.data.decode("utf-8")
     print("📩 Received from Pub/Sub:", data)
 
-    # Broadcast safely
     for ws in list(active_websockets):
         try:
             asyncio.run_coroutine_threadsafe(ws.send_text(data), loop)
