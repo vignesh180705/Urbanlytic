@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width">
+        <title>Quiz Master Register</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+        <link rel="icon" href="{{url_for ('static', filename='icons/register-page-icon.svg')}}" type="image/x-icon">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                background: #0d1117;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+
+            .wrapper {
+                width: 400px;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            }
+
+            .input-box input,
+            .button {
+                transition: transform 0.2s ease-in-out;
+            }
+
+            .input-box input:hover,
+            .button:hover {
+                transform: scale(1.05);
+            }
+
+            canvas {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: -1;
+                pointer-events: none;
+            }
+        </style>
+        <script>
+
+            var particleArray = []
+
+            function windowResized() {
+                resizeCanvas(windowWidth, windowHeight);
+            }
+
+            function mouseClicked() {
+                if (particleArray.length < 100) {
+                    particleArray.push(new createParticles(mouseX, mouseY));
+                }
+            }
+
+            function setup() {
+
+                createCanvas(windowWidth, windowHeight);
+                for (var i = 0; i < 70; i++) {
+                    particleArray.push(new createParticles(random(width), random(height)));
+                }
+            }
+
+            function draw() {
+                background(20);
+                for (var i = 0; i < particleArray.length; i++) {
+                    particleArray[i].move();
+                    for (var j = i; j < particleArray.length; j++) {
+                        particleArray[i].lineGenerator(particleArray[j].valX(), particleArray[j].valY());
+                    }
+                    particleArray[i].display();
+                    particleArray[i].checkEdges();
+                }
+            }
+
+            function createParticles(x, y) {
+                this.angle = random(-1, 1);
+                this.x = x;
+                this.y = y;
+                this.diameter = random(10, 15);
+                this.speedX = random(-1.5, 1.5);
+                this.speedY = random(-1.5, 1.5);
+                this.opacity = random(180, 255);
+                this.move = function () {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                }
+                this.display = function () {
+                    var d = (sin(this.angle + PI / 2) * this.diameter / 2) + this.diameter / 2;
+                    fill(255, 255, 255, this.opacity);
+                    noStroke();
+                    ellipse(this.x, this.y, d, d);
+                    this.angle += random(0.01, 0.05);
+                }
+
+                this.lineGenerator = function (a, b) {
+                    if (dist(this.x, this.y, mouseX, mouseY) < 127) {
+                        stroke(0, 0, 255, 255 - 2 * dist(this.x, this.y, mouseX, mouseY));
+                        line(this.x, this.y, mouseX, mouseY);
+                    }
+                    if (dist(this.x, this.y, a, b) < 127) {
+                        stroke(0, 0, 255, 255 - 2 * dist(this.x, this.y, a, b));
+                        line(this.x, this.y, a, b);
+                    }
+                }
+
+                this.checkEdges = function () {
+                    if (this.x > (width + this.diameter) || this.x < (0 - this.diameter)) {
+                        this.x = width - this.x;
+                    }
+                    if (this.y > (height + this.diameter) || this.y < (0 - this.diameter)) {
+                        this.y = height - this.y;
+                    }
+                }
+
+                this.valX = function () {
+                    return this.x;
+                }
+                this.valY = function () {
+                    return this.y;
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div class="wrapper">
+            <form id="Register" action="{{ url_for('register') }}" method="post">
+                <h1>Register</h1>
+                {% if userError %}
+                    <p style="color: red; font-weight: bold; text-align: center;">Username already exists!</p>
+                {% endif %}
+                {% if passError %}
+                    <p style="color: red; font-weight: bold; text-align: center;">Passwords do not match!</p>
+                {% endif %}
+                {% if mailError %}
+                    <p style="color: red; font-weight: bold; text-align: center;">Given Email is already registered!</p>
+                {% endif %}
+                {% if mailNotValidError %}
+                    <p style="color: red; font-weight: bold; text-align: center;">Not a valid Email!</p>
+                {% endif %}
+                <div class="input-box">
+                    <input type="text" name="name" placeholder="Name" required value="{{ name | default('') }}">
+                    <i class="bi bi-person"></i>
+                </div>
+                
+                <div class="input-box">
+                    <input type="text" name="username" placeholder="Username" required value="{{ username | default('') }}">
+                    {% if usernameError %}
+                        <p style="color: red; font-weight: bold; text-align: center;">Username already exists!</p>
+                    {% endif %}
+                    <i class="bi bi-person-circle"></i>
+                </div>
+
+                <div class="input-box">
+                    <input  type="email" name="mail" placeholder="Mail ID" required value="{{ mail | default('') }}">
+                    <i class="bi bi-envelope-at-fill"></i>
+                </div>
+                {% if lengthError %}
+                    <p style="color: red; font-weight: bold; text-align: center;">Password must be at least 8 characters long!</p>
+                {% endif %}
+                {% if specialCharError %}
+                    <p style="color: red; font-weight: bold; text-align: center;">Password must contain at least one special character!</p>
+                {% endif %}
+                {% if numberError %}
+                    <p style="color: red; font-weight: bold; text-align: center;">Password must contain at least one number!</p>
+                {% endif %}
+                {% if upperCaseError %}
+                    <p style="color: red; font-weight: bold; text-align: center;">Password must contain at least one uppercase letter!</p>
+                {% endif %}
+                {% if lowerCaseError %}
+                    <p style="color: red; font-weight: bold; text-align: center;">Password must contain at least one lowercase letter!</p>
+                {% endif %}
+                <div class="input-box password-container">
+                    <input class="password" name="password" type="password" placeholder="Password" required value="{{ password | default('') }}" maxlength="20">
+                    <i class="bi bi-eye-slash eye"></i>
+                </div>
+                
+                <div class="input-box password-container">
+                    <input class="password" name="confirm_password" type="password" placeholder="Confirm Password" required value="{{ confirm_password | default('') }}" maxlength="20">
+                    <i class="bi bi-eye-slash eye"></i>
+                </div>
+
+                <button type="submit" class="button">Register</button>
+                <div class="register-link">
+                    <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+                </div>
+            </form>
+        </div>
+        <script src="{{ url_for('static', filename='js/pass-toggle.js') }}"></script>
+    </body>
+</html>

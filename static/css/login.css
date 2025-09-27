@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=42dot+Sans:wght@300..800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "42dot Sans", sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e3c72, #2a5298, #6a11cb, #2575fc);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.wrapper {
+  width: 420px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  color: #fff;
+  border-radius: 15px;
+  padding: 40px;
+  transition: transform 0.3s ease;
+}
+.wrapper:hover {
+  transform: translateY(-5px);
+}
+
+.wrapper h1 {
+  font-size: 32px;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.input-box {
+  position: relative;
+  width: 100%;
+  margin: 20px 0;
+}
+.input-box input {
+  width: 100%;
+  height: 50px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 40px;
+  font-size: 16px;
+  color: #fff;
+  padding: 0 45px 0 20px;
+  outline: none;
+}
+.input-box input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+.input-box i {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.7);
+}
+
+.remember-forgot {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0 20px;
+  font-size: 14px;
+}
+.remember-forgot a {
+  color: #4fd1c5;
+  text-decoration: none;
+}
+.remember-forgot a:hover {
+  text-decoration: underline;
+}
+
+.button {
+  width: 100%;
+  height: 45px;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.social-login {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin: 20px 0;
+}
+.social-login a {
+  font-size: 26px;
+  transition: transform 0.2s ease;
+}
+.social-login a:hover {
+  transform: scale(1.2);
+}
+.social-login a.bi-google { color: #db4437; }
+.social-login a.bi-facebook { color: #4267B2; }
+.social-login a.bi-twitter { color: #1DA1F2; }
+
+.register-link {
+  font-size: 15px;
+  text-align: center;
+}
+.register-link a {
+  color: #4fd1c5;
+  font-weight: 600;
+  text-decoration: none;
+}
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urbanlytic Login</title>
+    <link href="{{ url_for('static', filename='css/login.css') }}" rel="stylesheet" >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='icons/patch-question.svg') }}" rel="icon" type="image/x-icon">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #0d1117;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .wrapper {
+            width: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .input-box input,
+        .button {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .input-box input:hover,
+        .button:hover {
+            transform: scale(1.05);
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+    <h1>Login</h1>
+        <form action="/login" method="POST">
+            <div class="input-box">
+            <input type="text" name="username" placeholder="Username" required>
+            <i class="bi bi-person"></i>
+            </div>
+
+            <div class="input-box">
+            <input type="password" name="password" placeholder="Password" required>
+            <i class="bi bi-eye-slash toggle-password"></i>
+            </div>
+
+            <div class="remember-forgot">
+            <label><input type="checkbox" name="remember"> Remember me</label>
+            <a href="#">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="button">Login</button>
+        </form>
+
+        <div class="divider"><span>or login with</span></div>
+
+        <div class="social-login">
+            <a class="bi bi-google"></a>
+            <a class="bi bi-facebook"></a>
+            <a class="bi bi-twitter"></a>
+        </div>
+
+        <p class="register-link">
+            Don't have an account? <a href="/register">Register</a>
+        </p>
+        <script src="{{ url_for('static', filename='js/pass-toggle.js') }}"></script>
+    </div>
+    <script>
+        gsap.from(".wrapper", { opacity: 0, y: -50, duration: 1, ease: "power2.out" });
+    </script>
+
+</body>
+</html>

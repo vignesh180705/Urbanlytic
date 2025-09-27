@@ -1,5 +1,5 @@
-fastapi
-uvicorn
+flask
+flask-socketio
 google-cloud-pubsub
 pydantic
 python-dotenv
@@ -7,3 +7,4 @@ jinja2
 python-multipart
 google-cloud-firestore
 google-generativeai
+eventlet
