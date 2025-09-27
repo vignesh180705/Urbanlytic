@@ -136,14 +136,9 @@ def callback(message):
 
 def start_subscriber():
     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-    try:
-        streaming_pull_future.result()
-    except Exception as e:
-        streaming_pull_future.cancel()
-        print("Subscriber stopped:", e)
 
 threading.Thread(target=start_subscriber, daemon=True).start()
 
 # ------------------ Run App ------------------ #
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=8000)
+    socketio.run(app, host="127.0.0.1", port=8000,debug=True)
