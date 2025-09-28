@@ -1,0 +1,17 @@
+/* Reports Page */
+.report-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+#reportOutput {
+    background-color: #1c1c1c;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+#reportOutput h3 {
+    margin-bottom: 0.5rem;
+}

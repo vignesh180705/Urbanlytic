@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-
+{% extends "base.html" %}
+{% block content %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,21 +57,21 @@
 
 <body>
     <div class="wrapper">
-    <h1>Login</h1>
+        <h1>Login</h1>
         <form action="/login" method="POST">
             <div class="input-box">
-            <input type="text" name="username" placeholder="Username" required>
-            <i class="bi bi-person"></i>
+                <input type="text" name="username" placeholder="Username" required>
+                <i class="bi bi-person"></i>
             </div>
 
             <div class="input-box">
-            <input type="password" name="password" placeholder="Password" required>
-            <i class="bi bi-eye-slash toggle-password"></i>
+                <input type="password" name="password" placeholder="Password" class="password" required>
+                <i class="bi bi-eye-slash eye"></i>
             </div>
 
             <div class="remember-forgot">
-            <label><input type="checkbox" name="remember"> Remember me</label>
-            <a href="#">Forgot password?</a>
+                <label><input type="checkbox" name="remember"> Remember me</label>
+                <a href="#">Forgot password?</a>
             </div>
 
             <button type="submit" class="button">Login</button>
@@ -87,11 +88,13 @@
         <p class="register-link">
             Don't have an account? <a href="/register">Register</a>
         </p>
-        <script src="{{ url_for('static', filename='js/pass-toggle.js') }}"></script>
     </div>
+
     <script>
         gsap.from(".wrapper", { opacity: 0, y: -50, duration: 1, ease: "power2.out" });
     </script>
+    <script src="{{ url_for('static', filename='js/pass-toggle.js') }}"></script>
 
 </body>
+{% endblock %}
 </html>

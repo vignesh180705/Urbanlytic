@@ -1,0 +1,20 @@
+/* Analytics Page */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 6rem;
+}
+
+.chart-container {
+    background-color: #1c1c1c;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+/* Canvas sizing */
+canvas {
+    width: 100% !important;
+    height: 300px !important;
+}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+<div id="appContainer">
+  {% include "partials/header.html" %}
+  <div id="appContent">
+    {% include "partials/sidebar.html" %}
+    <main class="main-panel">
+      <div class="container main-content">
+        <div id="dashboardPage">
+          <div class="page-header">
+            <h2 class="page-title">Dashboard Overview</h2>
+            <p class="page-subtitle">A snapshot of all civic issues and their current status.</p>
+          </div>
+          <div class="stats-grid" id="statsGrid"></div>
+          <div class="issues-grid" id="issuesGrid"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

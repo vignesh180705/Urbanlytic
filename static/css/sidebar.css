@@ -1,0 +1,45 @@
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background-color: #111;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    padding-top: 5rem; /* space for fixed header */
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+}
+
+.sidebar-title {
+    padding: 1rem;
+    font-weight: bold;
+    color: #3b82f6;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.sidebar .nav-button {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: white;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.sidebar .nav-button i {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.sidebar .nav-button:hover,
+.sidebar .nav-button.active {
+    background-color: #3b82f6;
+    color: #fff;
+}

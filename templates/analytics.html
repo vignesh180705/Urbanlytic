@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+</head>
+<div id="appContainer">
+  {% include "partials/header.html" %}
+  <div id="appContent">
+    {% include "partials/sidebar.html" %}
+    <main class="main-panel">
+      <div class="container main-content">
+        <div id="analyticsPage">
+          <div class="page-header">
+            <h2 class="page-title">Data Analytics</h2>
+            <p class="page-subtitle">Visualize trends and insights from the civic issue data.</p>
+          </div>
+
+          <div class="filter-panel">
+            <div class="filter-grid">
+              <div class="form-group">
+                <label class="form-label">Start Date</label>
+                <input type="date" class="form-input" id="analyticsStartDate" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">End Date</label>
+                <input type="date" class="form-input" id="analyticsEndDate" />
+              </div>
+              <div class="form-group" style="align-self: end;">
+                <button class="btn btn-primary" style="width: 100%;" onclick="renderAnalytics()">Apply Filters</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-grid" id="analyticsStatsGrid"></div>
+
+          <div class="analytics-grid">
+            <div class="chart-container">
+              <canvas id="issuesByCategoryChart"></canvas>
+            </div>
+            <div class="chart-container">
+              <canvas id="issuesByStatusChart"></canvas>
+            </div>
+            <div class="chart-container">
+              <canvas id="issuesByPriorityChart"></canvas>
+            </div>
+            <div class="chart-container">
+              <canvas id="issuesOverTimeChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

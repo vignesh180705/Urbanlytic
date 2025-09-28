@@ -1,0 +1,21 @@
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+</head>
+<header class="header">
+  <div class="header-left">
+    <div class="logo-container">
+      <i class="bi bi-map-pin" style="color: #3b82f6; font-size: 1.5rem;"></i>
+    </div>
+    <div class="header-text">
+      <h1 class="header-title">UrbanLytic</h1>
+      <span class="header-subtitle">Civic Issue Management Portal</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div id="userInfo">
+      <img id="userPhoto" src="https://placehold.co/40x40/EBF1FF/3B82F6?text=U" alt="User Photo">
+      <span id="userName">User Name</span>
+    </div>
+    <button class="btn nav-button" id="signOutBtn">Sign Out</button>
+  </div>
+</header>

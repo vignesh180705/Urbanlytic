@@ -1,0 +1,30 @@
+/* Dashboard grid and stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 6rem; /* leave space for header */
+}
+
+.stats-card {
+    background-color: #1c1c1c;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
+
+/* Filter Panel */
+.filter-panel {
+    background-color: #1a1a1a;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 8px;
+}
+
+.filter-group {
+    margin-bottom: 1rem;
+}
+
+.filter-input, .filter-select {
+    width: 100%;
+}

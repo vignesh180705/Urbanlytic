@@ -1,0 +1,45 @@
+/* Global body and font settings */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0d1117;
+    color: #fff;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+input, select {
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #555;
+    background: #1c1c1c;
+    color: white;
+}
+
+input::placeholder {
+    color: #aaa;
+}
+
+/* Flex utility */
+.flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Container */
+.container {
+    padding: 1rem;
+    max-width: 1200px;
+    margin: auto;
+}

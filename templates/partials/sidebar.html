@@ -1,0 +1,21 @@
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+</head>
+<nav class="sidebar">
+  <div class="sidebar-title">Main Navigation</div>
+
+  <a href="{{ url_for('dashboard') }}" class="nav-button {% if current_page == 'dashboard' %}active{% endif %}">
+    <i class="bi bi-layout-dashboard"></i>
+    <span>Dashboard</span>
+  </a>
+
+  <a href="{{ url_for('reports') }}" class="nav-button {% if current_page == 'reports' %}active{% endif %}">
+    <i class="bi bi-bar-chart-2"></i>
+    <span>Reports</span>
+  </a>
+
+  <a href="{{ url_for('analytics') }}" class="nav-button {% if current_page == 'analytics' %}active{% endif %}">
+    <i class="bi bi-pie-chart"></i>
+    <span>Analytics</span>
+  </a>
+</nav>
