@@ -6,7 +6,7 @@
 
   <a href="{{ url_for('dashboard') }}" class="nav-button {% if current_page == 'dashboard' %}active{% endif %}">
     <i class="bi bi-layout-dashboard"></i>
-    <span>Dashboard</span>
+    <span>My Reports</span>
   </a>
 
   <a href="{{ url_for('submit_report') }}" class="nav-button {% if current_page=='submit_report' %}active{% endif %}">
@@ -16,11 +16,8 @@
 
   <a href="{{ url_for('reports') }}" class="nav-button {% if current_page == 'reports' %}active{% endif %}">
     <i class="bi bi-bar-chart-2"></i>
-    <span>Reports</span>
+    <span>All Reports</span>
   </a>
 
-  <a href="{{ url_for('analytics') }}" class="nav-button {% if current_page == 'analytics' %}active{% endif %}">
-    <i class="bi bi-pie-chart"></i>
-    <span>Analytics</span>
   </a>
 </nav>

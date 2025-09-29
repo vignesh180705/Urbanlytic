@@ -1,7 +1,7 @@
 /* Sidebar Styles */
 .sidebar {
   position: fixed;
-  top: 70px; /* below header */
+  top: 100px; /* below header */
   left: 0;
   width: 250px; /* sidebar width */
   height: calc(100% - 70px); /* full height minus header */
@@ -50,4 +50,8 @@
     background-color: #3b82f6;
     color: #fff;
     z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 87%;
 }

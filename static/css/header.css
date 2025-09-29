@@ -8,7 +8,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 95%;
   height: 70px; /* fixed height */
   z-index: 100;
 }
@@ -23,11 +23,6 @@
 .header-title {
   font-size: 1.5rem;
   font-weight: bold;
-}
-
-.header-subtitle {
-  font-size: 0.85rem;
-  color: #ccc;
 }
 
 .header-right {

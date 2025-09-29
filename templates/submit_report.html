@@ -20,10 +20,12 @@
                         <label>Type</label>
                         <select name="type" required>
                             <option value="">Select type</option>
-                            <option value="road">Road</option>
-                            <option value="garbage">Garbage</option>
-                            <option value="water">Water</option>
-                            <option value="other">Other</option>
+                            <option value="Accident">Accident</option>
+                            <option value="Fire">Fire</option>
+                            <option value="Theft">Theft</option>
+                            <option value="Medical">Medical</option>
+                            <option value="Traffic">Traffic</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
@@ -32,10 +34,11 @@
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
                         <label>Media (Image / Video)</label>
-                        <input type="file" name="media" accept="image/*,video/*">
+                        <input type="file" name="media" accept="image/*,video/*" id="mediaInput">
+                        <div id="mediaPreview" style="margin-top: 10px;"></div>
                     </div>
                 </div>
-
+                <div id="submitResult" style="margin-top: 15px;"></div>
                 <button type="submit" class="submit-btn">Submit Report</button>
             </form>
 
@@ -57,11 +60,42 @@
 
         if(result.status === "success"){
             msgDiv.innerHTML = `<p style="color:#4fd1c5;">Report submitted successfully! ID: ${result.incident_id}</p>`;
-            this.reset();
+            this.reset(); // Reset form fields
+            mediaPreview.innerHTML = ""; // Clear media preview
         } else {
             msgDiv.innerHTML = `<p style="color:#ff4b2b;">Error: ${result.detail}</p>`;
         }
-    });
 
+        // Scroll to message for better UX
+        msgDiv.scrollIntoView({ behavior: "smooth" });
+    });
+</script>
+
+<script>
+    const mediaInput = document.getElementById("mediaInput");
+    const mediaPreview = document.getElementById("mediaPreview");
+
+    mediaInput.addEventListener("change", function() {
+        mediaPreview.innerHTML = ""; // Clear previous preview
+        const file = this.files[0];
+        if(!file) return;
+
+        if(file.type.startsWith("image/")) {
+            const img = document.createElement("img");
+            img.src = URL.createObjectURL(file);
+            img.style.maxWidth = "300px";
+            img.style.maxHeight = "200px";
+            img.style.borderRadius = "8px";
+            mediaPreview.appendChild(img);
+        } else if(file.type.startsWith("video/")) {
+            const video = document.createElement("video");
+            video.src = URL.createObjectURL(file);
+            video.controls = true;
+            video.style.maxWidth = "300px";
+            video.style.maxHeight = "200px";
+            video.style.borderRadius = "8px";
+            mediaPreview.appendChild(video);
+        }
+    });
 </script>
 {% endblock %}

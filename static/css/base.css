@@ -35,7 +35,7 @@ input::placeholder {
 /* Flex utility */
 .flex {
     display: flex;
-    align-items: center;
+    align-items: left;
     justify-content: space-between;
 }
 
@@ -127,5 +127,11 @@ input::placeholder {
 
 #appContainer, main, .main-panel {
   padding-top: 70px; /* header height */
+  margin-left: 0;    /* remove default left margin */
+}
+
+/* main-panel should sit right next to sidebar */
+.main-panel {
   margin-left: 250px; /* sidebar width */
+  padding: 20px;      /* inner spacing */
 }

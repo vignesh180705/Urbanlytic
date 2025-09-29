@@ -1,25 +1,85 @@
 {% extends "base.html" %}
+
 {% block content %}
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 {% endblock %}
+
 <div id="appContainer">
   {% include "partials/header.html" %}
   <div id="appContent">
     {% include "partials/sidebar.html" %}
     <main class="main-panel">
       <div class="container main-content">
-        <div id="dashboardPage">
-          <div class="page-header">
-            <h2 class="page-title">Dashboard Overview</h2>
-            <p class="page-subtitle">A snapshot of all civic issues and their current status.</p>
-          </div>
-          <div class="stats-grid" id="statsGrid"></div>
-          <div class="issues-grid" id="issuesGrid"></div>
+        <div class="page-header">
+          <h2 class="page-title">My Reports</h2>
+          <p class="page-subtitle">All the incidents you've submitted along with their current status.</p>
         </div>
+
+        <!-- Filter Section -->
+        <div class="filter-panel">
+          <div class="filter-group">
+            <label for="statusFilter">Filter by Status:</label>
+            <select id="statusFilter">
+              <option value="all">All</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Reports Grid -->
+        <div class="reports-grid" id="reportsGrid"></div>
       </div>
     </main>
   </div>
 </div>
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+<script>
+const reportsGrid = document.getElementById("reportsGrid");
+const statusFilter = document.getElementById("statusFilter");
+
+// Fetch user's reports from server
+async function loadReports() {
+    const res = await fetch("{{ url_for('get_user_reports') }}");
+    const data = await res.json();
+
+    renderReports(data.reports);
+}
+
+// Render reports in styled cards
+function renderReports(reports) {
+    const selectedStatus = statusFilter.value;
+    reportsGrid.innerHTML = "";
+
+    reports
+        .filter(r => selectedStatus === "all" || r.status === selectedStatus)
+        .forEach(report => {
+            const card = document.createElement("div");
+            card.classList.add("report-card");
+
+            card.innerHTML = `
+                <h3>${report.type} Issue</h3>
+                <p><strong>Location:</strong> ${report.location}</p>
+                <p><strong>Description:</strong> ${report.description}</p>
+                <p><strong>Priority:</strong> <span class="priority ${report.priority.toLowerCase()}">${report.priority}</span></p>
+                <p><strong>Status:</strong> <span class="status ${report.status.toLowerCase().replace(" ", "-")}">${report.status}</span></p>
+                ${report.media_url ? `<img src="${report.media_url}" alt="Attached media" class="report-media">` : ""}
+                <p><small>Submitted: ${new Date(report.timestamp._seconds * 1000).toLocaleString()}</small></p>
+            `;
+            reportsGrid.appendChild(card);
+        });
+        if (reportsGrid.innerHTML === "") {
+            reportsGrid.innerHTML = "<p>No reports found for this filter.</p>";
+        }
+
+}
+
+// Filter change listener
+statusFilter.addEventListener("change", loadReports);
+
+// Initial load
+loadReports();
+</script>
 {% endblock %}
