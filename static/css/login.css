@@ -12,9 +12,10 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e3c72, #2a5298, #6a11cb, #2575fc);
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #6a11cb, #2575fc);
   background-size: 400% 400%;
   animation: gradientBG 15s ease infinite;
+  color: white;
 }
 
 @keyframes gradientBG {

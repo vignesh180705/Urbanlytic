@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="appContainer">
+    {% include "partials/header.html" %}
+    {% include "partials/sidebar.html" %}
+
+    <main class="main-panel">
+        <div class="container page-container">
+            <h2 class="page-title">Submit Incident Report</h2>
+            <p class="page-subtitle">Provide details about the urban issue you want to report.</p>
+
+            <form id="reportForm" class="report-form" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" name="location" placeholder="Area / landmark" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select name="type" required>
+                            <option value="">Select type</option>
+                            <option value="road">Road</option>
+                            <option value="garbage">Garbage</option>
+                            <option value="water">Water</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Description</label>
+                        <textarea name="description" placeholder="Detailed description of the issue" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Media (Image / Video)</label>
+                        <input type="file" name="media" accept="image/*,video/*">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Report</button>
+            </form>
+
+    </main>
+</div>
+
+<script>
+    document.getElementById("reportForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        const res = await fetch("{{ url_for('submit_report') }}", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await res.json();
+        const msgDiv = document.getElementById("submitResult");
+
+        if(result.status === "success"){
+            msgDiv.innerHTML = `<p style="color:#4fd1c5;">Report submitted successfully! ID: ${result.incident_id}</p>`;
+            this.reset();
+        } else {
+            msgDiv.innerHTML = `<p style="color:#ff4b2b;">Error: ${result.detail}</p>`;
+        }
+    });
+
+</script>
+{% endblock %}

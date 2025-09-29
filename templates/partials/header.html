@@ -14,8 +14,12 @@
   <div class="header-right">
     <div id="userInfo">
       <img id="userPhoto" src="https://placehold.co/40x40/EBF1FF/3B82F6?text=U" alt="User Photo">
-      <span id="userName">User Name</span>
+      <span id="userName">{{user}}</span>
     </div>
-    <button class="btn nav-button" id="signOutBtn">Sign Out</button>
+    <a class="logout-btn" id="signOutBtn" href="{{ url_for('logout') }}">
+        <i class="bi bi-box-arrow-right"></i> Sign Out
+    </a>
+
+
   </div>
 </header>

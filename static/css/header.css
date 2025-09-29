@@ -1,47 +1,69 @@
-/* Header Styles */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    background-color: #111;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px; /* fixed height */
+  z-index: 100;
 }
 
-.header .logo-container i {
-    color: #3b82f6;
-    font-size: 28px;
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .header-title {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #fff;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .header-subtitle {
-    font-size: 0.9rem;
-    color: #aaa;
+  font-size: 0.85rem;
+  color: #ccc;
 }
 
 .header-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 #userInfo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 #userPhoto {
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #3b82f6;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  border: none;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.logout-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 75, 43, 0.5);
 }

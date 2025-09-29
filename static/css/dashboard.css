@@ -28,3 +28,7 @@
 .filter-input, .filter-select {
     width: 100%;
 }
+
+#appContainer, main, .main-panel {
+  padding-top: 70px; /* same as header height */
+}

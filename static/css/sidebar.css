@@ -1,16 +1,23 @@
 /* Sidebar Styles */
 .sidebar {
-    width: 250px;
-    background-color: #111;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    padding-top: 5rem; /* space for fixed header */
-    display: flex;
-    flex-direction: column;
-    z-index: 50;
+  position: fixed;
+  top: 70px; /* below header */
+  left: 0;
+  width: 250px; /* sidebar width */
+  height: calc(100% - 70px); /* full height minus header */
+  background-color: #1e293b;
+  color: white;
+  padding-top: 1rem;
+  z-index: 5;
 }
+
+.main-panel {
+  margin-left: 250px; /* same as sidebar width */
+  padding: 20px;
+  padding-top: 100px; /* leave space for header */
+}
+
+
 
 .sidebar-title {
     padding: 1rem;
@@ -42,4 +49,5 @@
 .sidebar .nav-button.active {
     background-color: #3b82f6;
     color: #fff;
+    z-index: 10;
 }

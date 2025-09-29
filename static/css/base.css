@@ -3,8 +3,10 @@ body, html {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #0d1117;
-    color: #fff;
+    background: linear-gradient(-45deg, #1e3c72, #2a5298, #6a11cb, #2575fc);
+    background-size: 400% 400%;
+    animation: gradientBG 12s ease infinite;
+    color: white;
 }
 
 a {
@@ -42,4 +44,88 @@ input::placeholder {
     padding: 1rem;
     max-width: 1200px;
     margin: auto;
+}
+
+.page-container {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 900px;
+    margin: 20px auto;
+    color: white;
+}
+
+.page-title {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.page-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    color: #cbd5e1;
+}
+
+.report-form .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.report-form .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.report-form select {
+    background: #1c1c1c;
+    color: white;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+.report-form input[type="file"] {
+    background: #1c1c1c;
+    color: white;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: none;
+}
+
+.report-form textarea {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.report-form input::placeholder,
+.report-form textarea::placeholder {
+    color: rgba(255,255,255,0.7);
+}
+
+.submit-btn {
+    margin-top: 20px;
+    padding: 12px 25px;
+    border-radius: 8px;
+    border: none;
+    background: #3b82f6;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.submit-btn:hover {
+    transform: scale(1.03);
+    background: #2563eb;
+}
+
+#appContainer, main, .main-panel {
+  padding-top: 70px; /* header height */
+  margin-left: 250px; /* sidebar width */
 }

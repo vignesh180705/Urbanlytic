@@ -12,18 +12,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
     <style>
-        body,
-        html {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background: #0d1117;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
         .wrapper {
             width: 400px;
             background: rgba(255, 255, 255, 0.1);
@@ -58,7 +46,19 @@
 <body>
     <div class="wrapper">
         <h1>Login</h1>
-        <form action="/login" method="POST">
+        <form action="{{url_for('login')}}" method="POST">
+            {% if error %}
+                    <p style="color: red; font-weight: bold; text-align: center;">{{error}}</p>
+            {% endif %}
+            {% if successMsg %}
+                    <p style="color: green; font-weight: bold; text-align: center;">{{successMsg}}</p>
+            {% endif %}
+            {% if logoutMsg %}
+                    <p style="color: green; font-weight: bold; text-align: center;">{{logoutMsg}}</p>
+            {% endif %}
+            {% if 'user_id' in session %}
+                <p style="color: green; font-weight: bold; text-align: center;">You are already logged in.</p>
+            {% endif %}
             <div class="input-box">
                 <input type="text" name="username" placeholder="Username" required>
                 <i class="bi bi-person"></i>
@@ -77,16 +77,19 @@
             <button type="submit" class="button">Login</button>
         </form>
 
-        <div class="divider"><span>or login with</span></div>
+        <div class="divider">
+            <span>Or Login with</span>
+        </div>
 
         <div class="social-login">
-            <a class="bi bi-google"></a>
-            <a class="bi bi-facebook"></a>
-            <a class="bi bi-twitter"></a>
+            <a href="#" class="social-btn google-btn">
+                <i class="bi bi-google"></i>
+                <span>Google</span>
+            </a>
         </div>
 
         <p class="register-link">
-            Don't have an account? <a href="/register">Register</a>
+            Don't have an account? <a href="{{url_for('register')}}">Register</a>
         </p>
     </div>
 

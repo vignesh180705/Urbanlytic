@@ -18,3 +18,7 @@ canvas {
     width: 100% !important;
     height: 300px !important;
 }
+
+#appContainer, main, .main-panel {
+  padding-top: 70px; /* same as header height */
+}
