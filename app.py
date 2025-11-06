@@ -13,6 +13,8 @@ from repository.user_repository import UserRepository
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
+#from services.clustering_service import ClusteringService
+
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecret")
@@ -38,7 +40,7 @@ incident_repo = IncidentRepository()
 user_repo = UserRepository()
 report_service = ReportService()
 user_service = UserService()
-
+#clustering_service = ClusteringService(eps=0.3, min_samples=2)
 # Utility
 def format_timestamp(ts):
     if hasattr(ts, "strftime"):
@@ -136,6 +138,17 @@ def submit_report():
             traceback.print_exc()
             return jsonify({"status": "error", "detail": str(e)}), 500
     return render_template("submit_report.html", user=session["user"], current_page="submit_report")
+
+'''@app.route("/cluster_incidents", methods=["POST"])
+def cluster_incidents():
+    all_reports = incident_repo.get_all_reports()  # fetch all reports from DB
+    clustered_reports, labels = clustering_service.cluster_reports(all_reports)
+    
+    # Optionally, save cluster IDs back to DB
+    for report in clustered_reports:
+        incident_repo.update_cluster_id(report["id"], report["cluster_id"])
+    
+    return jsonify({"status": "success", "clusters": labels.tolist()})'''
 
 @app.route("/settings")
 def settings():
@@ -341,7 +354,24 @@ def upload_proof(incident_id):
 
 @app.route("/admin/dashboard")
 def admin_dashboard():
-    return render_template("admin_dashboard.html", current_page="admin_dashboard")
+    reports_stream = incident_repo.collection.order_by("timestamp", direction=firestore.Query.DESCENDING).stream()
+    reports = [r.to_dict() for r in reports_stream]
+    stats = {
+        "total_reports": len(reports),
+        "in_progress": len([r for r in reports if r.get("status") == "In Progress"]),
+        "resolved": len([r for r in reports if r.get("status") == "Resolved"]),
+        "active_users": (user_repo.get_users_count())
+    }
+    print("Stats:", stats)
+    recent_reports_stream = incident_repo.get_recent_high_priority_reports(limit=5)
+    recent_reports = []
+    for doc in recent_reports_stream:
+        data = doc.to_dict()
+        data["id"] = doc.id 
+        data["timestamp"] = format_timestamp(data.get("timestamp"))
+        recent_reports.append(data)
+    print("Recent Reports:",recent_reports)
+    return render_template("admin_dashboard.html", stats=stats, recent_reports=recent_reports, current_page="admin_dashboard")
 
 
 # ---------------- PUBSUB HANDLER ---------------- #

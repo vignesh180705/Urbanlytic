@@ -18,3 +18,4 @@ class ReportRepository:
         if doc.exists:
             return doc.to_dict()
         return None
+    

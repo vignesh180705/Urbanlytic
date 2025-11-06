@@ -23,3 +23,7 @@ class UserRepository:
             return None
         doc_ref = docs[0].reference
         doc_ref.update(data)
+
+    def get_users_count(self):
+        docs = self.collection.stream()
+        return sum(1 for i in docs)

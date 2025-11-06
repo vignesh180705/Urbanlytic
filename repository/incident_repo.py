@@ -22,3 +22,12 @@ class IncidentRepository:
         if proof_url:
             update_data["proof_image"] = proof_url
         self.collection.document(incident_id).update(update_data)
+
+    def get_all_reports(self):
+        docs = self.db.collection("incidents").get()
+        return [{**doc.to_dict(), "id": doc.id} for doc in docs]
+    
+    def get_recent_high_priority_reports(self, limit=5):
+        query = self.collection.where("priority", "==", "High").order_by("timestamp", direction=firestore.Query.DESCENDING).limit(limit)
+        docs = query.stream()
+        return docs
