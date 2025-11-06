@@ -12,10 +12,14 @@ from repository.incident_repo import IncidentRepository
 from repository.user_repository import UserRepository
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecret")
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+app.config["SESSION_PERMANENT"] = False
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
 
 PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 TOPIC_ID = os.getenv("PUBSUB_TOPIC")
@@ -51,13 +55,21 @@ def index():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if 'user' in session:
+        return redirect(url_for("dashboard"))
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        remember = request.form.get("remember")
         user, error = user_service.authenticate_user(username, password)
         if error:
             return render_template("login.html", error=error)
         session["user"] = username
+        if remember:
+            session.permanent = True
+            app.permanent_session_lifetime = timedelta(days=30)
+        else:
+            session.permanent = False
         return redirect(url_for("dashboard"))
     return render_template("login.html")
 
@@ -121,6 +133,77 @@ def submit_report():
             traceback.print_exc()
             return jsonify({"status": "error", "detail": str(e)}), 500
     return render_template("submit_report.html", user=session["user"], current_page="submit_report")
+
+@app.route("/settings")
+def settings():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    user_data = user_repo.get_user_by_username(session["user"])
+    return render_template("settings.html", user_info=user_data, current_page="settings")
+
+
+@app.route("/update_profile", methods=["POST"])
+def update_profile():
+    if "user" not in session:
+        return jsonify({"status": "error", "detail": "Not logged in"}), 401
+
+    data = request.get_json()
+    username = session["user"]
+    errors = user_service.validate_profile_update(username, data)
+    if errors:
+        detail=""
+        for i in errors:
+            if i=="mailError":
+                detail+="\nEmail already in use."
+            if i=="phoneError":
+                detail+="\nInvalid Phone Number."
+            if i=="mailNotValidError":
+                detail+="\nInvalid Email Address."
+        return jsonify({"status": "error", "detail": detail, "errors": errors}), 400
+    try:
+        user_service.update_profile(username, data)
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": detail}), 500
+
+
+@app.route("/change_password", methods=["POST"])
+def change_password():
+    if "user" not in session:
+        return jsonify({"status": "error", "detail": "Not logged in"}), 401
+    data = request.get_json()
+    username = session["user"]
+    errors = user_service.validate_password_change(
+        username,
+        data.get("current_password"),
+        data.get("new_password"),
+        data.get("confirm_password"),
+    )
+    if errors:
+        detail=""
+        for i in errors:
+            if i=="currentPassError":
+                detail+="\nCurrent password is incorrect."
+            if i=="passError":
+                detail+="\nNew passwords do not match."
+            if i=="lengthError":
+                detail+="\nPassword must be at least 8 characters long."
+            if i=="upperCaseError":
+                detail+="\nPassword must contain at least one uppercase letter."
+            if i=="numberError":
+                detail+="\nPassword must contain at least one digit."
+            if i=="specialCharError":
+                detail+="\nPassword must contain at least one special character."
+            if i=="lowerCaseError":
+                detail+="\nPassword must contain at least one lowercase letter."
+        return jsonify({"status": "error", "detail": detail, "errors": errors}), 400
+
+    try:
+        user_service.change_password(username, data["new_password"])
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
 
 
 # ---------------- FIRESTORE QUERIES REPLACED WITH REPO ---------------- #

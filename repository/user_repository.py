@@ -16,3 +16,10 @@ class UserRepository:
 
     def save_user(self, user_dict):
         self.collection.document(user_dict["username"]).set(user_dict)
+
+    def update_user(self, username, data):
+        docs = self.collection.where("username", "==", username).get()
+        if not docs:
+            return None
+        doc_ref = docs[0].reference
+        doc_ref.update(data)
