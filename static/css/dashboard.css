@@ -117,8 +117,8 @@
 .filter-panel::after {
     content: "\25BC"; /* Down arrow */
     position: absolute;
-    right: 10px;
-    top: 50%;
+    right: 20px;
+    top: 40%;
     transform: translateY(-50%);
     pointer-events: none;
     color: white;

@@ -1,18 +1,20 @@
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from flask_socketio import SocketIO
 from google.cloud import firestore
-import os, json, re, threading
+import os, json, re, threading, traceback
 from dotenv import load_dotenv
 from google.cloud import pubsub_v1
 import google.generativeai as genai
 from services.report_service import ReportService
 from services.ai_service import AIService
-from repository.report_repository import ReportRepository
 from services.user_service import UserService
-
+from repository.incident_repo import IncidentRepository
+from repository.user_repository import UserRepository
+from datetime import datetime, timedelta
+from werkzeug.utils import secure_filename
 load_dotenv()
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "supersecret")  
+app.secret_key = os.getenv("SECRET_KEY", "supersecret")
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 PROJECT_ID = os.getenv("GCP_PROJECT_ID")
@@ -25,55 +27,40 @@ subscriber = pubsub_v1.SubscriberClient()
 topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
 subscription_path = subscriber.subscription_path(PROJECT_ID, SUBSCRIPTION_ID)
 
+# Initialize database + services
 db = firestore.Client()
-
 ai_classifier = AIService()
-report_repository = ReportRepository(db)
+incident_repo = IncidentRepository()
+user_repo = UserRepository()
 report_service = ReportService()
 user_service = UserService()
-auth_service = UserService()
 
-def classify_incident(description: str) -> dict:
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    prompt = f"""
-    You are an incident classification agent. 
-    Classify the following report into one of these categories:
-    [Accident, Fire, Theft, Medical, Traffic, Other]
+# Utility
+def format_timestamp(ts):
+    if hasattr(ts, "strftime"):
+        return ts.strftime("%Y-%m-%d %H:%M:%S")
+    return str(ts)
 
-    Also provide a short summary in plain English. 
-    Assign priority for the complaint among Low,Medium, and High.
 
-    Report: "{description}"
-    Respond ONLY in JSON with keys: category, summary, priority.
-    """
-    response = model.generate_content(prompt)
-    raw_text = response.text.strip()
-    cleaned = re.sub(r"^```(?:json)?|```$", "", raw_text, flags=re.MULTILINE).strip()
-    try:
-        return json.loads(cleaned)
-    except Exception:
-        return {"category": "Other", "summary": description[:100], "priority": "Low"}
+# ---------------- ROUTES ---------------- #
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-from datetime import timedelta
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-
         user, error = user_service.authenticate_user(username, password)
         if error:
             return render_template("login.html", error=error)
-
         session["user"] = username
         return redirect(url_for("dashboard"))
-
     return render_template("login.html")
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -84,58 +71,193 @@ def register():
             "email": request.form.get("mail"),
             "phone": request.form.get("phone"),
             "password": request.form.get("password"),
-            "confirm_password": request.form.get("confirm_password")
+            "confirm_password": request.form.get("confirm_password"),
         }
-
         errors = user_service.validate_registration(data)
         if errors:
             return render_template("register.html", **data, **errors)
-
         user_service.register_user(data)
         return redirect(url_for("login"))
     return render_template("register.html")
+
 
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
         return redirect(url_for("login"))
-    return render_template("dashboard.html", user=session["user"], current_page='dashboard')
+    print(session["user"])
+    return render_template("dashboard.html", user=session["user"], current_page="dashboard")
+
 
 @app.route("/logout")
 def logout():
     session.pop("user", None)
     return redirect(url_for("index"))
 
+
 @app.route("/reports")
 def reports():
     if "user" not in session:
         return redirect(url_for("login"))
-    return render_template("reports.html", user=session['user'], current_page='reports')
+    return render_template("reports.html", user=session["user"], current_page="reports")
+
 
 @app.route("/analytics")
 def analytics():
     if "user" not in session:
         return redirect(url_for("login"))
-    return render_template("analytics.html", user=session['user'], current_page='analytics')
+    return render_template("analytics.html", user=session["user"], current_page="analytics")
 
 
-import traceback
-
-@app.route("/submit", methods=["GET","POST"])
+@app.route("/submit", methods=["GET", "POST"])
 def submit_report():
     if "user" not in session:
         return jsonify({"status": "error", "detail": "User not logged in"}), 401
-
     if request.method == "POST":
         try:
-            incident_id = report_service.create_report(request.form, request.files, user=session['user'])
+            incident_id = report_service.create_report(request.form, request.files, user=session["user"])
             return jsonify({"status": "success", "incident_id": incident_id})
         except Exception as e:
-            print("Submit Error:", e)
             traceback.print_exc()
             return jsonify({"status": "error", "detail": str(e)}), 500
+    return render_template("submit_report.html", user=session["user"], current_page="submit_report")
 
-    return render_template("submit_report.html", user=session['user'], current_page='submit_report')
+
+# ---------------- FIRESTORE QUERIES REPLACED WITH REPO ---------------- #
+
+@app.route("/user/reports")
+def get_user_reports():
+    if "user" not in session:
+        return jsonify({"status": "error", "detail": "Not logged in"}), 401
+
+    username = session["user"]
+    reports_stream = incident_repo.collection.where("submitted_by", "==", username).order_by(
+        "timestamp", direction=firestore.Query.DESCENDING
+    ).stream()
+
+    reports = []
+    for doc in reports_stream:
+        r = doc.to_dict()
+        r["timestamp"] = format_timestamp(r.get("timestamp"))
+        r["priority"] = r.get("priority", "Low")
+        r["status"] = r.get("status", "Pending")
+        reports.append(r)
+
+    return jsonify({"status": "success", "reports": reports})
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    if request.method=='POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        admins = db.collection("admins").where("username", "==", username).get()
+        admin_data = admins[0].to_dict() if admins else None
+        if not admin_data:
+            error='Invalid Username'
+            return render_template("admin_login.html", error=error)
+        if password!=admin_data.get('password'):
+            error='Invalid Password'
+            return render_template("admin_login.html", error=error)
+        session['user']='admin'
+        return redirect(url_for("admin_dashboard"))
+    return render_template('admin_login.html',error=None)
+        
+
+@app.route("/admin/users")
+def admin_users():
+    users_stream = user_repo.collection.stream()
+    users = []
+    for doc in users_stream:
+        data = doc.to_dict()
+        created_at = data.get("created_at")
+        users.append({
+            "Name": data.get("name", "N/A"),
+            "Username": data.get("username", "N/A"),
+            "Email": data.get("email", "N/A"),
+            "Phone": data.get("phone", "N/A"),
+            "Joined": format_timestamp(created_at) if created_at else "—",
+        })
+    return render_template("admin_users.html", users=users, current_page="admin_users")
+
+
+@app.route("/admin/reports")
+def admin_reports():
+    reports_stream = incident_repo.collection.order_by("timestamp", direction=firestore.Query.DESCENDING).stream()
+    reports = []
+    for r in reports_stream:
+        data = r.to_dict()
+        data['id'] = r.id
+        reports.append({
+            "id": data.get("id"),
+            "type": data.get("type", "Unknown"),
+            "summary": data.get("summary", "No description"),
+            "location": data.get("location", "N/A"),
+            "priority": data.get("priority", "Low"),
+            "status": data.get("status", "Pending"),
+            "media_url": data.get("media_url"),
+            "timestamp": format_timestamp(data.get("timestamp")),
+            "user_email": data.get("submitted_by", "Unknown"),
+        })
+        print(data.get("id"))
+    return render_template("admin_reports.html", reports=reports, page_title="All Reports")
+
+@app.route("/admin/reports/<incident_id>")
+def admin_report_detail(incident_id):
+    report = incident_repo.get_report_by_id(incident_id)
+    if not report:
+        return "Report not found", 404
+    report["timestamp"] = format_timestamp(report.get("timestamp"))
+    return render_template("admin_report_detail.html", report=report, current_page="admin_reports", page_title=f"Report #{incident_id[:6]}")
+
+@app.route("/admin/reports/<incident_id>/update", methods=["POST"])
+def update_report_status(incident_id):
+    status = request.form.get("status")
+    proof = request.files.get("proof")
+
+    proof_url = None
+    if status == "Resolved":
+        if not proof:
+            return jsonify({"status": "error", "detail": "Proof image required for resolution"}), 400
+        filename = secure_filename(proof.filename)
+        proof.save(os.path.join("static/uploads/proofs", filename))
+        proof_url = url_for("static", filename=f"uploads/proofs/{filename}")
+
+    incident_repo.update_report_status(incident_id, status, proof_url)
+    return redirect(url_for("admin_reports"))
+
+@app.route("/admin/reports/<incident_id>/proof", methods=["POST"])
+def upload_proof(incident_id):
+    file = request.files.get("proof_image")
+    notes = request.form.get("notes", "")
+
+    if not file:
+        return "No file uploaded", 400
+
+    filename = secure_filename(file.filename)
+    path = os.path.join("static/proofs", filename)
+    file.save(path)
+    image_url = url_for('static', filename=f"proofs/{filename}")
+
+    # Save proof record
+    db.collection("proofs").add({
+        "incident_id": incident_id,
+        "uploaded_by": session.get("user", "admin"),
+        "image_url": image_url,
+        "timestamp": firestore.SERVER_TIMESTAMP,
+        "notes": notes
+    })
+
+    db.collection("incidents").document(incident_id).update({"status": "Resolved"})
+
+    return redirect(url_for('admin_report_detail', incident_id=incident_id))
+
+
+@app.route("/admin/dashboard")
+def admin_dashboard():
+    return render_template("admin_dashboard.html", current_page="admin_dashboard")
+
+
+# ---------------- PUBSUB HANDLER ---------------- #
 
 def callback(message):
     try:
@@ -145,37 +267,18 @@ def callback(message):
     except Exception as e:
         print("Subscriber error:", e)
 
+
 def start_subscriber():
     future = subscriber.subscribe(subscription_path, callback=callback)
     try:
         future.result()
-    except Exception as e:
+    except Exception:
         future.cancel()
+
 
 threading.Thread(target=start_subscriber, daemon=True).start()
 
-@app.route("/user/reports")
-def get_user_reports():
-    if "user" not in session:
-        return jsonify({"status": "error", "detail": "Not logged in"}), 401
 
-    username = session["user"]
-    reports_ref = db.collection("incidents").where("submitted_by", "==", username).order_by("timestamp", direction=firestore.Query.DESCENDING)
-    reports = [doc.to_dict() for doc in reports_ref.stream()]
-
-    # Ensure timestamp is JSON serializable
-    for r in reports:
-        if "timestamp" in r:
-            r["timestamp"] = r["timestamp"]
-
-        if "media_url" in r:
-            r["media_url"] = r["media_url"]
-
-        if "priority" not in r: r["priority"] = "Low"
-        if "status" not in r: r["status"] = "Pending"
-
-    return jsonify({"status": "success", "reports": reports})
-
-
+# ---------------- RUN APP ---------------- #
 if __name__ == "__main__":
-    socketio.run(app,debug=True)
+    socketio.run(app, debug=True)

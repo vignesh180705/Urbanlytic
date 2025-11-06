@@ -1,0 +1,111 @@
+.report-detail-container {
+  background: rgba(255,255,255,0.05);
+  padding: 20px;
+  border-radius: 8px;
+  color: white;
+}
+
+.media-section img {
+  max-width: 500px;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.status-form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+select, input[type=file] {
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+select option {
+background-color: #1c1c1c;  
+color: white;
+}
+
+select:hover, select:focus {
+  border-color: #4fd1c5;
+  outline: none;
+}
+
+.btn {
+  background: linear-gradient(135deg,#4fd1c5,#38b2ac);
+  border: none;
+  color: black;
+  font-weight: bold;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+#proofUpload {
+  background-color: #242424;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #444;
+  margin-top: 1rem;
+  display: none; /* hidden by default */
+}
+
+#proofUpload label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+#proofUpload input[type="file"] {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background-color: #1c1c1c;
+  color: #fff;
+  margin-bottom: 0.8rem;
+}
+
+#proofUpload textarea {
+  width: 100%;
+  background-color: #1c1c1c;
+  border: 1px solid #555;
+  border-radius: 6px;
+  color: white;
+  padding: 0.5rem;
+  resize: vertical;
+  min-height: 80px;
+  margin-bottom: 0.8rem;
+}
+
+#proofUpload button {
+  background-color: #4fd1c5;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#proofUpload button:hover {
+  background-color: #38b2ac;
+}
+
+/* Responsive tweak */
+@media (max-width: 600px) {
+  .report-detail-container {
+    padding: 1rem;
+  }
+
+  .status-form, #proofUpload {
+    padding: 1rem;
+  }
+}

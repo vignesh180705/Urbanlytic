@@ -5,111 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Urbanlytic</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    * {
-      margin: 0; padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    body, html {
-      height: 100%;
-      overflow-x: hidden;
-      scroll-behavior: smooth;
-    }
-
-    /* Background gradient animation */
-    body {
-      background: linear-gradient(-45deg, #1e3c72, #2a5298, #6a11cb, #2575fc);
-      background-size: 400% 400%;
-      animation: gradientBG 12s ease infinite;
-      color: white;
-    }
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    header {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 50px;
-      backdrop-filter: blur(12px);
-      background-color: rgba(0,0,0,0.25);
-      z-index: 10;
-    }
-    header h1 {
-      font-size: 1.8rem;
-      font-weight: bold;
-    }
-    .buttons {
-      display: flex;
-      gap: 15px;
-    }
-    .buttons a {
-      text-decoration: none;
-      color: #fff;
-      background: linear-gradient(135deg,#4c51bf,#5a67d8);
-      padding: 10px 22px;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: transform 0.2s, background 0.3s;
-    }
-    .buttons a:hover {
-      transform: translateY(-3px);
-      background: linear-gradient(135deg,#5a67d8,#4c51bf);
-    }
-
-    .section {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 120px 20px 60px;
-      animation: fadeInUp 1s ease forwards;
-    }
-    .section h2 {
-      font-size: 3rem;
-      margin-bottom: 20px;
-    }
-    .section p {
-      font-size: 1.25rem;
-      max-width: 700px;
-      line-height: 1.6;
-    }
-    .cta-btn {
-      margin-top: 30px;
-      padding: 14px 30px;
-      background: #4fd1c5;
-      color: #000;
-      font-weight: bold;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: transform 0.2s, background 0.3s;
-    }
-    .cta-btn:hover {
-      background: #38b2ac;
-      transform: scale(1.05);
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
 </head>
 <body>
   <header>
-    <h1>Urbanlytic</h1>
+    <h1><a href="{{ url_for('index') }}" class="logo-link">Urbanlytic</a></h1>
     <div class="buttons">
       <a href="{{ url_for('register') }}"><i class="fa fa-user-plus"></i> Register</a>
-      <a href="{{ url_for('login') }}"><i class="fa fa-sign-in-alt"></i> Login</a>
+      <div class="dropdown">
+        <button class="dropbtn"><i class="fa fa-sign-in-alt"></i> Login ▾</button>
+        <div class="dropdown-content">
+          <a href="{{ url_for('login') }}">User Login</a>
+          <a href="{{ url_for('admin_login') }}">Admin Login</a>
+        </div>
+      </div>
     </div>
   </header>
 

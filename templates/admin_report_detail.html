@@ -1,0 +1,71 @@
+{% set admin_name = session.get('user', 'Administrator') %}
+{% set page_title = "All Reports" %}
+{% extends "base_admin.html" %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_report_detail.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="report-detail-container">
+  <h2>{{ report.type }} Report</h2>
+  <p><strong>Description:</strong> {{ report.description }}</p>
+  <p><strong>Summary:</strong> {{ report.summary or "—" }}</p>
+  <p><strong>Location:</strong> {{ report.location }}</p>
+  <p><strong>Priority:</strong> <span class="priority {{ report.priority|lower }}">{{ report.priority }}</span></p>
+  <p><strong>Status:</strong> <span class="status {{ report.status|lower }}">{{ report.status }}</span></p>
+  <p><strong>Submitted By:</strong> {{ report.submitted_by }}</p>
+  <p><strong>Timestamp:</strong> {{ report.timestamp }}</p>
+
+  {% if report.media_url %}
+  <div class="media-section">
+    <img src="{{ report.media_url }}" alt="Incident Image">
+  </div>
+  {% endif %}
+
+  <form action="{{ url_for('update_report_status', incident_id=report.id) }}" method="POST" enctype="multipart/form-data" class="status-form">
+    <label for="status">Update Status:</label>
+    <select id="status" name="status" required>
+      <option value="Pending" {% if report.status == "Pending" %}selected{% endif %}>Pending</option>
+      <option value="Ongoing" {% if report.status == "Ongoing" %}selected{% endif %}>Ongoing</option>
+      <option value="Resolved" {% if report.status == "Resolved" %}selected{% endif %}>Resolved</option>
+    </select>
+
+    <div id="proofUpload" style="display: none; margin-top: 15px;">
+        <form action="{{ url_for('upload_proof', incident_id=report.id) }}" method="post" enctype="multipart/form-data">
+            <label>Upload Proof Image:</label>
+            <input type="file" name="proof" accept="image/*" required>
+            <textarea name="notes" placeholder="Optional notes..."></textarea>
+            <button type="submit">Submit Proof and Update Status</button>
+        </form>
+    </div>
+    <div id="update_status">
+        <button type="submit" class="btn">Update Status </button>
+    </div>
+    
+  </form>
+</div>
+
+<script>
+document.getElementById("status").addEventListener("change", function() {
+  const proof = document.getElementById("proof-section");
+  proof.style.display = this.value === "Resolved" ? "block" : "none";
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const statusSelect = document.getElementById("status");
+  const proofSection = document.getElementById("proofUpload");
+  const updateStatusDiv = document.getElementById("update_status");
+  function toggleProof() {
+    if (statusSelect.value === "Resolved") {
+      proofSection.style.display = "block";
+      updateStatusDiv.style.display = "none";
+    } else {
+      proofSection.style.display = "none";
+      updateStatusDiv.style.display = "block";
+    }
+  }
+
+  statusSelect.addEventListener("change", toggleProof);
+  toggleProof(); // run on page load (in case Resolved is preselected)
+});
+</script>
+{% endblock %}

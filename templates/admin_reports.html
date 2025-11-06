@@ -1,0 +1,104 @@
+{% set admin_name = session.get('user', 'Administrator') %}
+{% set page_title = "All Reports" %}
+{% extends "base_admin.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_reports.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="reports-header">
+  <h2>Incident Reports</h2>
+
+  <div class="filter-section">
+    <label>Status:</label>
+    <select id="statusFilter">
+      <option value="all">All</option>
+      <option value="Pending">Pending</option>
+      <option value="In Progress">In Progress</option>
+      <option value="Resolved">Resolved</option>
+    </select>
+
+    <label>From:</label>
+    <input type="date" id="startDate">
+
+    <label>To:</label>
+    <input type="date" id="endDate">
+
+    <button id="filterBtn" class="btn">Filter</button>
+  </div>
+</div>
+
+{% if reports %}
+<table class="reports-table" id="reportsTable">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Type</th>
+      <th>Summary</th>
+      <th>Location</th>
+      <th>Priority</th>
+      <th>Status</th>
+      <th>Submitted By</th>
+      <th>Date</th>
+      <th>View Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in reports %}
+    <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ r.type }}</td>
+    <td>{{ r.summary }}</td>
+    <td>{{ r.location }}</td>
+    <td><span class="priority {{ r.priority|lower }}">{{ r.priority }}</span></td>
+    <td><span class="status {{ r.status|lower|replace(' ', '-') }}">{{ r.status }}</span></td>
+    <td>{{ r.user_email }}</td>
+    <td>{{ r.timestamp }}</td>
+    <td>
+    <a href="{{ url_for('admin_report_detail', incident_id=r.id) }}" class="view-link">
+        Click Here!
+    </a>
+    </td>
+
+    </tr>
+
+    {% if r.media_url %}
+    <tr>
+        <td colspan="8" style="text-align:center; background:rgba(255,255,255,0.05);">
+            <img src="{{ r.media_url }}" alt="Incident Image" class="report-media">
+        </td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p class="no-reports">No reports found.</p>
+{% endif %}
+
+<script>
+document.getElementById("filterBtn").addEventListener("click", () => {
+  const status = document.getElementById("statusFilter").value;
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+  const rows = document.querySelectorAll("#reportsTable tbody tr");
+
+  const startDate = start ? new Date(start) : null;
+  const endDate = end ? new Date(end) : null;
+
+  rows.forEach(row => {
+    const statusCell = row.querySelector(".status").textContent.trim();
+    const dateCell = new Date(row.cells[7].textContent.trim());
+    let visible = true;
+
+    if (status !== "all" && statusCell !== status) visible = false;
+    if (startDate && dateCell < startDate) visible = false;
+    if (endDate && dateCell > endDate) visible = false;
+
+    row.style.display = visible ? "" : "none";
+  });
+});
+</script>
+{% endblock %}

@@ -46,6 +46,7 @@ class UserService:
 
     def authenticate_user(self, username, password):
         user = self.repo.get_user_by_username(username)
+        print("Fetched user for authentication:", user)
         if not user:
             return None, "User not found"
         if not check_password_hash(user["password"], password):

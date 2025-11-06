@@ -10,6 +10,7 @@
     padding: 1rem;
     border-radius: 8px;
     margin-top: 1rem;
+    color: white;
 }
 
 #reportOutput h3 {
@@ -18,4 +19,37 @@
 
 #appContainer, main, .main-panel {
   padding-top: 70px; /* same as header height */
+}
+
+.btn{
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+/* Make calendar icon white for dark background */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* turns black icon white */
+  cursor: pointer;
+}
+
+/* Optional: make input text match your theme */
+input[type="date"].form-input {
+  background-color: #1c1c1c;
+  color: white;
+  border: 1px solid #555;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* Optional: hover effect */
+input[type="date"].form-input:hover::-webkit-calendar-picker-indicator {
+  filter: brightness(2) invert(1);
 }

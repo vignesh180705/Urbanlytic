@@ -1,0 +1,99 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #6a11cb, #2575fc);
+  background-size: 400% 400%;
+  animation: gradientBG 12s ease infinite;
+  color: white;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.admin-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  padding: 20px;
+}
+
+.sidebar h2 {
+  color: #4fd1c5;
+  text-align: center;
+}
+
+.sidebar nav {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar nav a {
+  color: #fff;
+  text-decoration: none;
+  padding: 12px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background: rgba(79, 209, 197, 0.3);
+  transform: translateX(5px);
+}
+
+/* Main panel */
+.main-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.topbar {
+  background: rgba(0,0,0,0.3);
+  padding: 20px 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.content {
+  padding: 40px;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.user-table th,
+.user-table td {
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.user-table th {
+  background: rgba(255,255,255,0.15);
+}
+
+.user-table tr:nth-child(even) {
+  background: rgba(255,255,255,0.07);
+}
+
+.no-users {
+  text-align: center;
+  font-size: 1.2rem;
+  opacity: 0.8;
+}

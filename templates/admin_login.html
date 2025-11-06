@@ -59,8 +59,8 @@
         </div>
     </header>
     <div class="wrapper">
-        <h1>Login</h1>
-        <form action="{{url_for('login')}}" method="POST">
+        <h1>Admin Login</h1>
+        <form action="{{url_for('admin_login')}}" method="POST">
             {% if error %}
                     <p style="color: red; font-weight: bold; text-align: center;">{{error}}</p>
             {% endif %}
@@ -83,28 +83,8 @@
                 <i class="bi bi-eye-slash eye"></i>
             </div>
 
-            <div class="remember-forgot">
-                <label><input type="checkbox" name="remember"> Remember me</label>
-                <a href="#">Forgot password?</a>
-            </div>
-
             <button type="submit" class="button">Login</button>
         </form>
-
-        <div class="divider">
-            <span>Or Login with</span>
-        </div>
-
-        <div class="social-login">
-            <a href="#" class="social-btn google-btn">
-                <i class="bi bi-google"></i>
-                <span>Google</span>
-            </a>
-        </div>
-
-        <p class="register-link">
-            Don't have an account? <a href="{{url_for('register')}}">Register</a>
-        </p>
     </div>
 
     <script>

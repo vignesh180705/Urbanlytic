@@ -1,0 +1,42 @@
+{% set admin_name = session.get('user', 'Administrator') %}
+{% set page_title = "All Registered Users" %}
+{% extends "base_admin.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_users.css') }}">
+{% endblock %}
+
+{% block content %}
+
+
+{% if users %}
+<table class="user-table">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Email</th>
+      <th>Username</th>
+      <th>Phone</th>
+      <th>Name</th>
+      <th>Joined On</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ u.Email or 'N/A' }}</td>
+      <td>{{ u.Username or 'N/A' }}</td>
+      <td>{{ u.Phone or 'N/A' }}</td>
+      <td>{{ u.Name or 'N/A' }}</td>
+      <td>{{ u.Joined or '—' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p class="no-users">No users found in Firestore.</p>
+{% endif %}
+{% endblock %}
+
+

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title or "Urbanlytic Admin" }}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_base.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="admin-container">
+    {% include 'partials/admin_sidebar.html' %}
+    <main class="main-panel">
+      {% include 'partials/admin_header.html' %}
+      <section class="content">
+        {% block content %}{% endblock %}
+      </section>
+    </main>
+  </div>
+</body>
+</html>

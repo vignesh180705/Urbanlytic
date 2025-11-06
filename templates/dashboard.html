@@ -47,7 +47,14 @@ async function loadReports() {
 
     renderReports(data.reports);
 }
-
+function formatTimestamp(ts) {
+    if (!ts) return "N/A";
+    // Firestore Timestamp format (object with _seconds)
+    if (ts._seconds) return new Date(ts._seconds * 1000).toLocaleString();
+    // If it's already a string (ISO format)
+    if (typeof ts === "string" || typeof ts === "number") return new Date(ts).toLocaleString();
+    return "N/A";
+}
 // Render reports in styled cards
 function renderReports(reports) {
     const selectedStatus = statusFilter.value;
@@ -66,7 +73,7 @@ function renderReports(reports) {
                 <p><strong>Priority:</strong> <span class="priority ${report.priority.toLowerCase()}">${report.priority}</span></p>
                 <p><strong>Status:</strong> <span class="status ${report.status.toLowerCase().replace(" ", "-")}">${report.status}</span></p>
                 ${report.media_url ? `<img src="${report.media_url}" alt="Attached media" class="report-media">` : ""}
-                <p><small>Submitted: ${new Date(report.timestamp._seconds * 1000).toLocaleString()}</small></p>
+                <p><small>Submitted: ${formatTimestamp(report.timestamp)}</small></p>
             `;
             reportsGrid.appendChild(card);
         });

@@ -119,8 +119,6 @@ body {
   transform: scale(1.2);
 }
 .social-login a.bi-google { color: #db4437; }
-.social-login a.bi-facebook { color: #4267B2; }
-.social-login a.bi-twitter { color: #1DA1F2; }
 
 .register-link {
   font-size: 15px;
@@ -141,4 +139,10 @@ canvas {
   width: 100vw; height: 100vh;
   z-index: -1;
   pointer-events: none;
+}
+
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 16px;
 }

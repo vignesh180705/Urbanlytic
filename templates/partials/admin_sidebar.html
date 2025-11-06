@@ -1,0 +1,23 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2>Urbanlytic</h2>
+    <p class="role">Admin Panel</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="{{ url_for('admin_dashboard') }}"
+       class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+       <i class="fa fa-chart-line"></i> Dashboard
+    </a>
+    <a href="{{ url_for('admin_reports') }}"
+         class="{% if request.endpoint == 'admin_reports' %}active{% endif %}">
+         <i class="fa fa-clipboard-list"></i> Reports
+    </a>
+    <a href="{{ url_for('admin_users') }}"
+       class="{% if request.endpoint == 'admin_users' %}active{% endif %}">
+       <i class="fa fa-users"></i> Users
+    </a>
+    <a href="{{ url_for('logout') }}" class="logout">
+      <i class="fa fa-sign-out-alt"></i> Logout
+    </a>
+  </nav>
+</aside>

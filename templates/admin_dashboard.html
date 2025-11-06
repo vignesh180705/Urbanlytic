@@ -1,0 +1,86 @@
+{% set admin_name = session.get('user', 'Administrator') %}
+{% set page_title = "Admin Dashboard" %}
+{% extends "base_admin.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- Main Content -->
+    <main class="main-panel">
+      <section class="dashboard-content">
+        <!-- Analytics Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <i class="fa fa-exclamation-circle"></i>
+            <div>
+              <h3>Total Reports</h3>
+              <p>128</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="fa fa-spinner"></i>
+            <div>
+              <h3>In Progress</h3>
+              <p>45</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="fa fa-check-circle"></i>
+            <div>
+              <h3>Resolved</h3>
+              <p>73</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="fa fa-user"></i>
+            <div>
+              <h3>Active Users</h3>
+              <p>25</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Reports -->
+        <div class="reports-section">
+          <h2>Recent Reports</h2>
+          <table class="reports-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>#1023</td>
+                <td>Power Outage</td>
+                <td><span class="status in-progress">In Progress</span></td>
+                <td>Block A</td>
+                <td>Nov 6, 2025</td>
+              </tr>
+              <tr>
+                <td>#1024</td>
+                <td>Water Leak</td>
+                <td><span class="status resolved">Resolved</span></td>
+                <td>Building 5</td>
+                <td>Nov 5, 2025</td>
+              </tr>
+              <tr>
+                <td>#1025</td>
+                <td>Network Down</td>
+                <td><span class="status pending">Pending</span></td>
+                <td>Server Room</td>
+                <td>Nov 4, 2025</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+{% endblock %}

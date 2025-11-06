@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>UrbanLytic</title>
+  {% block head %}{% endblock %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <script src="https://cdn.socket.io/4.7.1/socket.io.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
