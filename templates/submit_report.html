@@ -59,7 +59,8 @@
         const msgDiv = document.getElementById("submitResult");
 
         if(result.status === "success"){
-            msgDiv.innerHTML = `<p style="color:#4fd1c5;">Report submitted successfully! ID: ${result.incident_id}</p>`;
+            msgDiv.innerHTML = `<p style="color:lightGreen;">Report submitted successfully! ID: ${result.incident_id}</p>`;
+            console.log("Submitted Report:", result.report);
             this.reset(); // Reset form fields
             mediaPreview.innerHTML = ""; // Clear media preview
         } else {

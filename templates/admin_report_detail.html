@@ -10,6 +10,7 @@
   <h2>{{ report.type }} Report</h2>
   <p><strong>Description:</strong> {{ report.description }}</p>
   <p><strong>Summary:</strong> {{ report.summary or "—" }}</p>
+  <p><strong>Category: {{ report.category or "-" }}</strong></p>
   <p><strong>Location:</strong> {{ report.location }}</p>
   <p><strong>Priority:</strong> <span class="priority {{ report.priority|lower }}">{{ report.priority }}</span></p>
   <p><strong>Status:</strong> <span class="status {{ report.status|lower }}">{{ report.status }}</span></p>

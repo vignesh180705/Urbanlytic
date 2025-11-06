@@ -26,6 +26,7 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .sidebar-header {

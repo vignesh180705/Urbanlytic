@@ -35,7 +35,8 @@
   <thead>
     <tr>
       <th>#</th>
-      <th>Type</th>
+      <th>Category</th>
+      <th>AI Predicted Category</th>
       <th>Summary</th>
       <th>Location</th>
       <th>Priority</th>
@@ -49,6 +50,7 @@
     {% for r in reports %}
     <tr>
     <td>{{ loop.index }}</td>
+    <td>{{ r.category }}</td>
     <td>{{ r.type }}</td>
     <td>{{ r.summary }}</td>
     <td>{{ r.location }}</td>

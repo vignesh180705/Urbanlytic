@@ -128,7 +128,10 @@ def submit_report():
     if request.method == "POST":
         try:
             incident_id = report_service.create_report(request.form, request.files, user=session["user"])
-            return jsonify({"status": "success", "incident_id": incident_id})
+            report = incident_repo.get_report_by_id(incident_id)
+            if not report:
+                return jsonify({"status": "error", "detail": "Report not found after creation"}), 500
+            return jsonify({"status": "success", "incident_id": incident_id, "report": report})
         except Exception as e:
             traceback.print_exc()
             return jsonify({"status": "error", "detail": str(e)}), 500
@@ -140,7 +143,7 @@ def settings():
         return redirect(url_for("login"))
 
     user_data = user_repo.get_user_by_username(session["user"])
-    return render_template("settings.html", user_info=user_data, current_page="settings")
+    return render_template("settings.html", user_info=user_data, current_page="settings", user=session["user"])
 
 
 @app.route("/update_profile", methods=["POST"])
@@ -273,6 +276,7 @@ def admin_reports():
         reports.append({
             "id": data.get("id"),
             "type": data.get("type", "Unknown"),
+            "category": data.get("category", "Unknown"),
             "summary": data.get("summary", "No description"),
             "location": data.get("location", "N/A"),
             "priority": data.get("priority", "Low"),
