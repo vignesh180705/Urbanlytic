@@ -10,7 +10,7 @@ function generateReport() {
     alert("End date cannot be in the future!");
     return;
   }
-  fetch("/user/reports")
+  fetch("/user/all_reports")
     .then(res => res.json())
     .then(data => {
       const startDate = start ? new Date(start) : null;

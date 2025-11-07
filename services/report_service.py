@@ -18,14 +18,14 @@ class ReportService:
     def create_report(self, form_data, files, user):
         incident = {
             "location": form_data.get("location"),
-            "category": form_data.get("type"),  # User-selected category
+            "category": form_data.get("type"),  
             "description": form_data.get("description"),
             "submitted_by": user,
             "timestamp": firestore.SERVER_TIMESTAMP,
-            "priority": "Low",              # default until AI assigns
-            "type": "Other",                # AI classification default
+            "priority": "Low",              
+            "type": "Other",                
             "summary": form_data.get("summary", ""),
-            "status": "Pending"             # default status
+            "status": "Pending"             
         }
 
         media = files.get("media")
@@ -37,7 +37,7 @@ class ReportService:
         if self.ai_service:
             ai_result = self.ai_service.classify_incident(incident["description"])
             incident.update({
-                "type": ai_result.get("category", "Other"),      # AI classification
+                "type": ai_result.get("category", "Other"),      
                 "priority": ai_result.get("priority", "Low"),
                 "summary": ai_result.get("summary", incident["summary"])
             })
@@ -51,5 +51,4 @@ class ReportService:
         except Exception as e:
             print("Error publishing to Pub/Sub:", e)
 
-        return incident_id
         return incident_id

@@ -10,33 +10,27 @@ class ClusteringService:
         self.model = SentenceTransformer('all-MiniLM-L6-v2')
         self.incident_repo = IncidentRepository()
         self.db = firestore.Client()
-        self.similarity_threshold = 0.7  # Cosine similarity threshold
+        self.similarity_threshold = 0.7  
 
     def cluster_reports(self):
-        # Fetch all reports
         reports_stream = self.incident_repo.collection.stream()
         reports = [r.to_dict() for r in reports_stream]
         if not reports:
             return []
 
-        # Get embeddings
         descriptions = [r["description"] for r in reports]
         embeddings = self.model.encode(descriptions, convert_to_numpy=True)
 
-        # Compute cosine distance matrix
         from sklearn.metrics.pairwise import cosine_distances
         dist_matrix = cosine_distances(embeddings)
 
-        # DBSCAN clustering
         clustering = DBSCAN(eps=1-self.similarity_threshold, min_samples=1, metric='precomputed')
         labels = clustering.fit_predict(dist_matrix)
 
-        # Assign cluster IDs to reports
         for report, cluster_id in zip(reports, labels):
             report_id = report["id"]
             self.incident_repo.collection.document(report_id).update({"cluster_id": int(cluster_id)})
 
-        # Create cluster documents
         clusters = {}
         for report, cluster_id in zip(reports, labels):
             cluster_id = int(cluster_id)
@@ -49,7 +43,6 @@ class ClusteringService:
                 }
             clusters[cluster_id]["report_ids"].append(report["id"])
 
-        # Save clusters to Firestore
         for cluster in clusters.values():
             self.db.collection("clusters").document(str(cluster["cluster_id"])).set(cluster)
 

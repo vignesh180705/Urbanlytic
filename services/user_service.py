@@ -2,7 +2,7 @@ import re
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from repository.user_repository import UserRepository
-
+from email_validator import validate_email, EmailNotValidError
 class UserService:
     def __init__(self):
         self.repo = UserRepository()
@@ -25,11 +25,10 @@ class UserService:
             errors["specialCharError"] = True
         if not data["phone"].isdigit() or len(data["phone"]) < 10:
             errors["phoneError"] = True
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", data["email"]):
-            errors["mailNotValidError"] = True
         if self.repo.get_user_by_email(data["email"]):
             errors["mailError"] = True
-
+        if not self.validate_email(data["email"]):
+            errors["mailNotValidError"] = True
         return errors
 
     def register_user(self, data):
@@ -57,7 +56,7 @@ class UserService:
         existing_user = self.repo.get_user_by_email(data["email"])
         if existing_user and existing_user["username"] != username:
             errors["mailError"] = True
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", data["email"]):
+        if not self.validate_email(existing_user["email"]):
             errors["mailNotValidError"] = True
         if not data["phone"].isdigit() or len(data["phone"]) < 10:
             errors["phoneError"] = True
@@ -101,3 +100,10 @@ class UserService:
         hashed_pw = generate_password_hash(new_password)
         self.repo.update_user(username, {"password": hashed_pw, "updated_at": datetime.utcnow()})
         return {"status": "success", "message": "Password changed successfully"}
+    
+    def validate_email(self, email):
+        try:
+            info = validate_email(email, check_deliverability=False)
+            return True
+        except EmailNotValidError as e:
+            return False

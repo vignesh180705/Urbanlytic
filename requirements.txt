@@ -9,3 +9,4 @@ google-cloud-firestore
 google-generativeai
 eventlet
 sentence_transformers
+email_validator

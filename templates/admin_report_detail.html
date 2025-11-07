@@ -1,5 +1,5 @@
 {% set admin_name = session.get('user', 'Administrator') %}
-{% set page_title = "All Reports" %}
+{% set page_title = page_title %}
 {% extends "base_admin.html" %}
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_report_detail.css') }}">

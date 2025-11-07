@@ -27,3 +27,7 @@ class UserRepository:
     def get_users_count(self):
         docs = self.collection.stream()
         return sum(1 for i in docs)
+    
+    def get_all_users(self):
+        docs = self.collection.stream()
+        return docs

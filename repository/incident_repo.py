@@ -24,10 +24,20 @@ class IncidentRepository:
         self.collection.document(incident_id).update(update_data)
 
     def get_all_reports(self):
-        docs = self.db.collection("incidents").get()
-        return [{**doc.to_dict(), "id": doc.id} for doc in docs]
+        docs = self.collection.stream()
+        return docs
     
     def get_recent_high_priority_reports(self, limit=5):
         query = self.collection.where("priority", "==", "High").order_by("timestamp", direction=firestore.Query.DESCENDING).limit(limit)
+        docs = query.stream()
+        return docs
+    
+    def get_reports_by_time(self):
+        query = self.collection.order_by("timestamp", direction=firestore.Query.DESCENDING)
+        docs = query.stream()
+        return docs
+    
+    def get_reports_by_username(self, username):
+        query = self.collection.where("submitted_by", "==", username).order_by("timestamp", direction=firestore.Query.DESCENDING)
         docs = query.stream()
         return docs

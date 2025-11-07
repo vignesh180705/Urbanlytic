@@ -33,7 +33,6 @@ subscriber = pubsub_v1.SubscriberClient()
 topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
 subscription_path = subscriber.subscription_path(PROJECT_ID, SUBSCRIPTION_ID)
 
-# Initialize database + services
 db = firestore.Client()
 ai_classifier = AIService()
 incident_repo = IncidentRepository()
@@ -41,14 +40,10 @@ user_repo = UserRepository()
 report_service = ReportService()
 user_service = UserService()
 #clustering_service = ClusteringService(eps=0.3, min_samples=2)
-# Utility
 def format_timestamp(ts):
     if hasattr(ts, "strftime"):
         return ts.strftime("%Y-%m-%d %H:%M:%S")
     return str(ts)
-
-
-# ---------------- ROUTES ---------------- #
 
 @app.route("/")
 def index():
@@ -113,6 +108,7 @@ def logout():
 def reports():
     if "user" not in session:
         return redirect(url_for("login"))
+    
     return render_template("reports.html", user=session["user"], current_page="reports")
 
 
@@ -141,7 +137,7 @@ def submit_report():
 
 '''@app.route("/cluster_incidents", methods=["POST"])
 def cluster_incidents():
-    all_reports = incident_repo.get_all_reports()  # fetch all reports from DB
+    all_reports = incident_repo.get_all_reports()  
     clustered_reports, labels = clustering_service.cluster_reports(all_reports)
     
     # Optionally, save cluster IDs back to DB
@@ -222,17 +218,13 @@ def change_password():
         return jsonify({"status": "error", "detail": str(e)}), 500
 
 
-# ---------------- FIRESTORE QUERIES REPLACED WITH REPO ---------------- #
-
 @app.route("/user/reports")
 def get_user_reports():
     if "user" not in session:
         return jsonify({"status": "error", "detail": "Not logged in"}), 401
 
     username = session["user"]
-    reports_stream = incident_repo.collection.where("submitted_by", "==", username).order_by(
-        "timestamp", direction=firestore.Query.DESCENDING
-    ).stream()
+    reports_stream = incident_repo.get_reports_by_username(username)
 
     reports = []
     for doc in reports_stream:
@@ -242,6 +234,22 @@ def get_user_reports():
         r["status"] = r.get("status", "Pending")
         reports.append(r)
 
+    return jsonify({"status": "success", "reports": reports})
+
+@app.route('/user/all_reports')
+def get_all_reports():
+    if "user" not in session:
+        return jsonify({"status": "error", "detail": "Not logged in"})
+    reports_stream = incident_repo.get_all_reports()
+    reports = []
+    for doc in reports_stream:
+        print('doc:', doc)
+        r = doc.to_dict()
+        r["timestamp"] = format_timestamp(r.get("timestamp"))
+        r["priority"] = r.get("priority", "Low")
+        r["status"] = r.get("status", "Pending")
+        reports.append(r)
+    print("Reports:",reports)
     return jsonify({"status": "success", "reports": reports})
 
 @app.route("/admin/login", methods=["GET", "POST"])
@@ -264,7 +272,7 @@ def admin_login():
 
 @app.route("/admin/users")
 def admin_users():
-    users_stream = user_repo.collection.stream()
+    users_stream = user_repo.get_all_users()
     users = []
     for doc in users_stream:
         data = doc.to_dict()
@@ -281,7 +289,7 @@ def admin_users():
 
 @app.route("/admin/reports")
 def admin_reports():
-    reports_stream = incident_repo.collection.order_by("timestamp", direction=firestore.Query.DESCENDING).stream()
+    reports_stream = incident_repo.get_reports_by_time()
     reports = []
     for r in reports_stream:
         data = r.to_dict()
@@ -307,7 +315,7 @@ def admin_report_detail(incident_id):
     if not report:
         return "Report not found", 404
     report["timestamp"] = format_timestamp(report.get("timestamp"))
-    return render_template("admin_report_detail.html", report=report, current_page="admin_reports", page_title=f"Report #{incident_id[:6]}")
+    return render_template("admin_report_detail.html", report=report, current_page="admin_reports", page_title=f"Report #{incident_id}")
 
 @app.route("/admin/reports/<incident_id>/update", methods=["POST"])
 def update_report_status(incident_id):
@@ -338,23 +346,22 @@ def upload_proof(incident_id):
     file.save(path)
     image_url = url_for('static', filename=f"proofs/{filename}")
 
-    # Save proof record
-    db.collection("proofs").add({
+    '''db.collection("proofs").add({
         "incident_id": incident_id,
         "uploaded_by": session.get("user", "admin"),
         "image_url": image_url,
         "timestamp": firestore.SERVER_TIMESTAMP,
         "notes": notes
-    })
+    })'''
 
-    db.collection("incidents").document(incident_id).update({"status": "Resolved"})
+    incident_repo.update_report_status(incident_id, "Resolved", proof_url=image_url)
 
     return redirect(url_for('admin_report_detail', incident_id=incident_id))
 
 
 @app.route("/admin/dashboard")
 def admin_dashboard():
-    reports_stream = incident_repo.collection.order_by("timestamp", direction=firestore.Query.DESCENDING).stream()
+    reports_stream = incident_repo.get_reports_by_time()
     reports = [r.to_dict() for r in reports_stream]
     stats = {
         "total_reports": len(reports),
@@ -374,7 +381,6 @@ def admin_dashboard():
     return render_template("admin_dashboard.html", stats=stats, recent_reports=recent_reports, current_page="admin_dashboard")
 
 
-# ---------------- PUBSUB HANDLER ---------------- #
 
 def callback(message):
     try:
@@ -395,7 +401,5 @@ def start_subscriber():
 
 threading.Thread(target=start_subscriber, daemon=True).start()
 
-
-# ---------------- RUN APP ---------------- #
 if __name__ == "__main__":
     socketio.run(app, debug=True)
